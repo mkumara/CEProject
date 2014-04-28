@@ -14,8 +14,8 @@ public class Global {
     
     public static int startTime=7;
     public static int endTime=22;
-    public static int MAX_POOL_TIMES;
-    public static int MAX_RESTAURANT_TIMES;
-    public static int MAX_RESTROOM_TIMES;
+    public static int MAX_POOL_TIMES=2;
+    public static int MAX_RESTAURANT_TIMES=3;
+    public static int MAX_RESTROOM_TIMES=4;
     
 }
