@@ -6,6 +6,8 @@
 
 package facilitiies;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import sir.Individual;
 
 /**
@@ -72,23 +74,50 @@ public class Cabin {
     }
     
     
-    public void useRestRoom(int indIndex){
+    public void useRestRoom(){
         
-        if(this.restroom.getInfected()==1){
-          if(this.individuals[indIndex].getInfState()==0){
+        //get the number of times an individual uses the restroom
+        int totalTimes=0;
+        
+        for(int i=0;i<this.numIndividuals;i++){
+          totalTimes+=this.individuals[i].getSchedule().getTimesRestroom();
+          }
+        Integer[][] restRoomUse=new Integer[totalTimes][2];
+        int count=0;
+         for(int i=0;i<this.numIndividuals;i++){
+           
+             for(int j=0;j<this.individuals[i].getSchedule().getTimesRestroom();j++){
+                 restRoomUse[count][1]=i;
+                 restRoomUse[count][0]=(this.individuals[i].getSchedule().getRestroomSchedule())[j];
+                 count++;
+                 
+             }
+          }
+             
+       Arrays.sort(restRoomUse, new Comparator<Integer[]>(){
+        @Override
+        public int compare(Integer[] o1, Integer[] o2) {
+            return o1[0].compareTo(o2[0]);
+        }
+        });
+       
+       for(int k=0;k<restRoomUse.length;k++){
+       if(this.restroom.getInfected()==1){
+          if(this.individuals[k].getInfState()==0){
           
               double x = Math.random();
               
               if(x < this.infectivity){
                   
-                  this.individuals[indIndex].setInfState(1);
+                  this.individuals[k].setInfState(1);
               }
           }
+              
         }
         
         //contaminating restroom if individual is infected
         
-        if(this.individuals[indIndex].getInfState()==2){
+        if(this.individuals[k].getInfState()==2){
           if(this.restroom.getInfected()==0){
           
               double x = Math.random();
@@ -98,6 +127,7 @@ public class Cabin {
               }
           }
         }
+           }      
             
     }
     
@@ -105,7 +135,6 @@ public class Cabin {
       
         if(this.numIndividuals > 0){
         int x=(int)(Math.random()*this.getNumIndividuals());
-        System.out.println(x+" out of "+this.numIndividuals);
         this.individuals[x].setInfState(1);
         }
     }

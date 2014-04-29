@@ -221,6 +221,12 @@ public class ShipDeck {
        this.restrooms[i].setCleaned(1);
        this.restrooms[i].setInfected(0);
      }
+     
+      for(int i=0;i<this.numOfCabins;i++){
+          
+          (this.getCabins())[i].setInfectivity(0);
+      }
+      
  }
  
  public void cleanPools(){

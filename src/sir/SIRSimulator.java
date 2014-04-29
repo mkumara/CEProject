@@ -96,16 +96,24 @@ public class SIRSimulator {
         
         Cabin cabs[]=this.ship.getCabins();
         
-        for(int i=0;i<5;i++){
+        for(int i=0;i<1;i++){
          int x=(int)(Math.random()*this.ship.getNumOfCabins());
-         System.out.println("Num ind = "+ cabs[x].getNumIndividuals());
-         cabs[x].infectCabin();         
+         //System.out.println("Num ind = "+ cabs[x].getNumIndividuals());
+         cabs[x].infectCabin(); 
+         if(cabs[x].getNumIndividuals()>2)
+          cabs[x].useRestRoom();
          //System.out.println("Cabin infected  "+ x +" "+ cabs[x].getInfected());
          
         }
-        for (Cabin cab : cabs) {
+       /* for (Cabin cab : cabs) {
             cab.printCabinSchedule();
-        }
+        }*/
+        
+        this.ship.cleanRestRooms();
+        
+       /* for(int j=0;j<this.DURATION;j++){
+          
+        }*/
        
     }
 
