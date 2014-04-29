@@ -31,7 +31,8 @@ public class SIRSimulator {
     private int sus = 0;
     private int rec = 0;
     private int inf = 0;
-    private int exp;
+    private int exp=0;
+    private int qua=0;
     private ShipDeck ship;
     private int MAX_IND_PER_CABIN=4;
     
@@ -112,37 +113,59 @@ public class SIRSimulator {
         
         for(int j=0;j<this.DURATION;j++){
                
+               
+        this.useDeckRestroom();
+         
+        
         this.ship.cleanRestRooms();
         this.ship.cleanRestaurents();
         this.ship.cleanPools();
         
+         this.usePool();
          
+         this.ship.cleanRestRooms();
+        this.ship.cleanRestaurents();
+        this.ship.cleanPools();
+        
          
-         this.useDeckRestroom();
-         
-          this.ship.cleanRestRooms();
+      /*  this.ship.cleanRestRooms();
+        this.ship.cleanRestaurents();
+        this.ship.cleanPools();
+       
+              */
+           this.useRestaurant();
+           this.ship.cleanRestRooms();
         this.ship.cleanRestaurents();
         this.ship.cleanPools();
          
-         this.usePool();
+         for (Cabin cab : cabs) {
+            cab.useRestRoom();
+           }
          
         this.ship.cleanRestRooms();
         this.ship.cleanRestaurents();
         this.ship.cleanPools();
-         this.useRestaurant();
-         
+        
+        
+         //for days increment
          for (Cabin cab : cabs) {
-            cab.useRestRoom();
-        }
+            for(int i=0;i<cab.getNumIndividuals();i++){
+             if((cab.getIndividuals()[i].getInfState())!=0) 
+              cab.getIndividuals()[i].incDays();
+              }
+           }
          
          for(Cabin cab : cabs){
+             
         for(int i=0;i<cab.getNumIndividuals();i++){
+            int days= cab.getIndividuals()[i].getDays();
               if((cab.getIndividuals()[i].getInfState())==1){
-                 if(j >=this.LATENT_PERIOD)
+                  
+                 if(days >=this.LATENT_PERIOD)
                   cab.getIndividuals()[i].setInfState(2);                
               }else{
                 if((cab.getIndividuals()[i].getInfState())==2){
-                   if(j >=(this.LATENT_PERIOD + this.INFECTIOUS_PERIOD)){
+                   if(days >=(this.LATENT_PERIOD + this.INFECTIOUS_PERIOD)){
                        cab.getIndividuals()[i].setInfState(3);
                   }
                }
@@ -150,6 +173,20 @@ public class SIRSimulator {
             }
         }
          
+        for(Cabin cab : cabs){
+             
+        for(int i=0;i<cab.getNumIndividuals();i++){
+           
+            double quarantine=Math.random();
+            
+            if(quarantine < 0.25){
+              if((cab.getIndividuals()[i].getInfState())==2){
+                   cab.getIndividuals()[i].setQuarantine(true);
+              }
+              }
+            }
+          }
+              
          //int tot=this.getInfectCount();
         // System.out.println("Total infections = "+tot);
          this.printStats();
@@ -164,6 +201,7 @@ public class SIRSimulator {
         this.inf = 0;
         this.rec = 0;
         this.exp=0;
+        this.qua=0;
         
         Cabin cabs[]=this.ship.getCabins();
 
@@ -177,11 +215,13 @@ public class SIRSimulator {
                 this.inf++;
             if((cab.getIndividuals()[i].getInfState())==3)
                 this.rec++;
+            if((cab.getIndividuals()[i].isQuarantine()))
+                this.qua++;
           }
         }
        
 
-        System.out.println("Suseptible=" + this.sus +" Exposed ="+this.exp + " Infected=" + this.inf + " Recovered=" + this.rec + "\n");
+        System.out.println("Suseptible=" + this.sus +" Exposed ="+this.exp + " Infected=" + this.inf + " Recovered=" + this.rec +" Quarantined ="+this.qua+ "\n");
     }
 
     public void setInfectious(int num) {
@@ -234,24 +274,27 @@ public class SIRSimulator {
             for(int i=0;i<cab.getNumIndividuals();i++){
                 
             int restaurent=(int)(Math.random()*this.ship.getNumOfRestaurents()) ;
-           
+            if(!(cab.getIndividuals()[i].isQuarantine())){
             
             if((cab.getIndividuals()[i].getInfState())==2){
+               
                 double x=Math.random();
-                if(x < 0.1){
+                if(x < 0.80){
                   this.ship.getRestaurents()[restaurent].setInfected(1);
                 }
+                
             } 
             
             if((this.ship.getRestaurents()[restaurent].getInfected())==1){
                 double x=Math.random();
                 if((this.ship.getRestaurents()[restaurent].getSeafood())==1){
-                if(x < 0.1)
+                if(x < 0.80)
                     cab.getIndividuals()[i].setInfState(1);
               }
             }
            
            }  
+            }
         }
        
       
@@ -269,23 +312,30 @@ public class SIRSimulator {
         
             for(int i=0;i<cab.getNumIndividuals();i++){
                 
+            double usePool=Math.random();
+             if(!(cab.getIndividuals()[i].isQuarantine())){
+            
+            if(usePool < 0.1){
+                
             int pool=(int)(Math.random()*this.ship.getNumOfPools());
            
             
             if((cab.getIndividuals()[i].getInfState())==2){
                 double x=Math.random();
-                if(x < 0.1)
+                if(x < 0.50)
                   this.ship.getPools()[pool].setInfected(1);
             } 
             
             Pool p=this.ship.getPools()[pool];
             if(p.getInfected()==1){
                 double x=Math.random();
-                if(x < 0.1)
+                if(x < 0.50)
                     cab.getIndividuals()[i].setInfState(1);
             }
            
-           }  
+            } 
+             }
+         }
         }
      } 
      

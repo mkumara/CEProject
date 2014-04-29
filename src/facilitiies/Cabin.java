@@ -20,7 +20,7 @@ public class Cabin {
     private int numIndividuals;
     private Individual individuals[];
     private final float seaFoodPortion = 0.25f;
-    private float infectivity=0.80f;
+    private float infectivity=0.95f;
 
     public Cabin(Restroom restroom, int numIndividuals) {
         this.restroom = restroom;

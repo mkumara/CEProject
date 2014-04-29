@@ -26,7 +26,7 @@ public class SIR {
         ss.run();*/
         
         ShipDeck sd=new ShipDeck(5, 2,2,1000);
-        sd.setInfectionInDeck(0, 0, 0);
+        sd.setInfectionInDeck(1, 0, 0);
         
         SIRSimulator sirsim=new SIRSimulator(sd);
         sirsim.run();
