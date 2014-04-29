@@ -42,6 +42,11 @@ public class ShipDeck {
         for(int i=0;i<this.numOfRestaurents;i++){
             this.restaurents[i]=new Restaurent();
             this.restaurents[i].setInfected(0);
+            
+            double x=Math.random();
+              if(x < 0.25){
+                  this.restaurents[i].setSeafood(1);
+              }
         }
         
         for(int i=0;i<this.numOfRestrooms;i++){

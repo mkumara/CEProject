@@ -20,7 +20,7 @@ public class Cabin {
     private int numIndividuals;
     private Individual individuals[];
     private final float seaFoodPortion = 0.25f;
-    private float infectivity=0.95f;
+    private float infectivity=0.80f;
 
     public Cabin(Restroom restroom, int numIndividuals) {
         this.restroom = restroom;
@@ -103,13 +103,13 @@ public class Cabin {
        
        for(int k=0;k<restRoomUse.length;k++){
        if(this.restroom.getInfected()==1){
-          if(this.individuals[k].getInfState()==0){
+          if(this.individuals[restRoomUse[k][1]].getInfState()==0){
           
               double x = Math.random();
               
               if(x < this.infectivity){
                   
-                  this.individuals[k].setInfState(1);
+                  this.individuals[restRoomUse[k][1]].setInfState(1);
               }
           }
               
@@ -117,7 +117,7 @@ public class Cabin {
         
         //contaminating restroom if individual is infected
         
-        if(this.individuals[k].getInfState()==2){
+        if(this.individuals[restRoomUse[k][1]].getInfState()==2){
           if(this.restroom.getInfected()==0){
           
               double x = Math.random();
@@ -127,9 +127,14 @@ public class Cabin {
               }
           }
         }
-           }      
+      }  
+       
+      
             
     }
+    
+    //************************************************************************************
+    
     
     public void infectCabin(){
       

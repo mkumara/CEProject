@@ -6,9 +6,13 @@
 package sir;
 
 import facilitiies.Cabin;
+import facilitiies.Pool;
+import facilitiies.Restaurent;
 import facilitiies.Restroom;
 import facilitiies.ShipDeck;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  *
@@ -27,8 +31,10 @@ public class SIRSimulator {
     private int sus = 0;
     private int rec = 0;
     private int inf = 0;
+    private int exp;
     private ShipDeck ship;
     private int MAX_IND_PER_CABIN=4;
+    
 
     public SIRSimulator() {
            }
@@ -100,20 +106,56 @@ public class SIRSimulator {
          int x=(int)(Math.random()*this.ship.getNumOfCabins());
          //System.out.println("Num ind = "+ cabs[x].getNumIndividuals());
          cabs[x].infectCabin(); 
-         if(cabs[x].getNumIndividuals()>2)
-          cabs[x].useRestRoom();
-         //System.out.println("Cabin infected  "+ x +" "+ cabs[x].getInfected());
+          //System.out.println("Cabin infected  "+ x +" "+ cabs[x].getInfected());
          
         }
-       /* for (Cabin cab : cabs) {
-            cab.printCabinSchedule();
-        }*/
         
+        for(int j=0;j<this.DURATION;j++){
+               
         this.ship.cleanRestRooms();
+        this.ship.cleanRestaurents();
+        this.ship.cleanPools();
         
-       /* for(int j=0;j<this.DURATION;j++){
-          
-        }*/
+         
+         
+         this.useDeckRestroom();
+         
+          this.ship.cleanRestRooms();
+        this.ship.cleanRestaurents();
+        this.ship.cleanPools();
+         
+         this.usePool();
+         
+        this.ship.cleanRestRooms();
+        this.ship.cleanRestaurents();
+        this.ship.cleanPools();
+         this.useRestaurant();
+         
+         for (Cabin cab : cabs) {
+            cab.useRestRoom();
+        }
+         
+         for(Cabin cab : cabs){
+        for(int i=0;i<cab.getNumIndividuals();i++){
+              if((cab.getIndividuals()[i].getInfState())==1){
+                 if(j >=this.LATENT_PERIOD)
+                  cab.getIndividuals()[i].setInfState(2);                
+              }else{
+                if((cab.getIndividuals()[i].getInfState())==2){
+                   if(j >=(this.LATENT_PERIOD + this.INFECTIOUS_PERIOD)){
+                       cab.getIndividuals()[i].setInfState(3);
+                  }
+               }
+              }
+            }
+        }
+         
+         //int tot=this.getInfectCount();
+        // System.out.println("Total infections = "+tot);
+         this.printStats();
+        }
+        
+      
        
     }
 
@@ -121,21 +163,25 @@ public class SIRSimulator {
         this.sus = 0;
         this.inf = 0;
         this.rec = 0;
+        this.exp=0;
+        
+        Cabin cabs[]=this.ship.getCabins();
 
-        for (int i = 0; i < this.NUM_IND; i++) {
-            if (this.population[i].getInfState() == 0) {
-                this.sus++;
-            }
-
-            if (this.population[i].getInfState() == 1) {
+        for(Cabin cab : cabs){
+        for(int i=0;i<cab.getNumIndividuals();i++){
+            if((cab.getIndividuals()[i].getInfState())==0)
+                 this.sus++;
+            if((cab.getIndividuals()[i].getInfState())==1)
+                this.exp++;
+            if((cab.getIndividuals()[i].getInfState())==2)
                 this.inf++;
-            }
-            if (this.population[i].getInfState() == 2) {
+            if((cab.getIndividuals()[i].getInfState())==3)
                 this.rec++;
-            }
+          }
         }
+       
 
-        System.out.println("Suseptible=" + this.sus + " Infected=" + this.inf + " Recovered=" + this.rec + "\n");
+        System.out.println("Suseptible=" + this.sus +" Exposed ="+this.exp + " Infected=" + this.inf + " Recovered=" + this.rec + "\n");
     }
 
     public void setInfectious(int num) {
@@ -161,5 +207,119 @@ public class SIRSimulator {
         this.rec = 0;
         printStats();
     }
+    
+    public int getInfectCount(){
+       Cabin cabs[]=this.ship.getCabins();
+       int total=0;
+        for (Cabin cab : cabs) {
+            
+            for(int i=0;i<cab.getNumIndividuals();i++){
+              if((cab.getIndividuals()[i].getInfState())==2){
+                total++;
+              }
+            }
+        }
+        
+        return total;
+    }
+    
+     public void useRestaurant(){
+        
+        //get the number of times an individual uses the restroom
+        
+        Cabin cabs[]=this.ship.getCabins();
+        
+        for(Cabin cab : cabs){
+        
+            for(int i=0;i<cab.getNumIndividuals();i++){
+                
+            int restaurent=(int)(Math.random()*this.ship.getNumOfRestaurents()) ;
+           
+            
+            if((cab.getIndividuals()[i].getInfState())==2){
+                double x=Math.random();
+                if(x < 0.1){
+                  this.ship.getRestaurents()[restaurent].setInfected(1);
+                }
+            } 
+            
+            if((this.ship.getRestaurents()[restaurent].getInfected())==1){
+                double x=Math.random();
+                if((this.ship.getRestaurents()[restaurent].getSeafood())==1){
+                if(x < 0.1)
+                    cab.getIndividuals()[i].setInfState(1);
+              }
+            }
+           
+           }  
+        }
+       
+      
+            
+    }
+     
+     
+     public void usePool(){
+        
+        //get the number of times an individual uses the restroom
+        
+        Cabin cabs[]=this.ship.getCabins();
+        
+        for(Cabin cab : cabs){
+        
+            for(int i=0;i<cab.getNumIndividuals();i++){
+                
+            int pool=(int)(Math.random()*this.ship.getNumOfPools());
+           
+            
+            if((cab.getIndividuals()[i].getInfState())==2){
+                double x=Math.random();
+                if(x < 0.1)
+                  this.ship.getPools()[pool].setInfected(1);
+            } 
+            
+            Pool p=this.ship.getPools()[pool];
+            if(p.getInfected()==1){
+                double x=Math.random();
+                if(x < 0.1)
+                    cab.getIndividuals()[i].setInfState(1);
+            }
+           
+           }  
+        }
+     } 
+     
+     
+     public void useDeckRestroom(){
+        
+        //get the number of times an individual uses the restroom
+        
+        Cabin cabs[]=this.ship.getCabins();
+        
+        for(Cabin cab : cabs){
+        
+            for(int i=0;i<cab.getNumIndividuals();i++){
+                
+            int rest=(int)(Math.random()*this.ship.getNumOfRestrooms());
+           
+            
+            if((cab.getIndividuals()[i].getInfState())==2){
+                double x=Math.random();
+                if(x < 0.5)
+                  this.ship.getRestrooms()[rest].setInfected(1);
+            } 
+            
+            Restroom r=(this.ship.getRestrooms())[rest];
+            if(r.getInfected()==1){
+                double x=Math.random();
+                if(x < 0.5)
+                    cab.getIndividuals()[i].setInfState(1);
+            }
+           
+           }  
+        }
+     }  
+  
+    
 
 }
